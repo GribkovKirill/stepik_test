@@ -30,19 +30,24 @@ def main():
     def file_transfer_script():
         '''Script function for transferring a file from
         the download folder to the testing folder.
-        To work on your system, change the path to the directories.'''
+        To work on your system, change the path to the directories.
+        In the 2nd version, the user's autofill appeared and the
+        creation of the tests folder in its absence'''
 
-        file_source = 'C:\\Users\\kiril\\Downloads\\'
+        username = os.getlogin()
+        file_source = f'C:\\Users\\{username}\\Downloads\\'
+        file_destination = os.getcwd()
+        if not os.path.exists('tests'):
+            os.mkdir('tests')
         os.chdir(file_source)
-        file_destination = 'C:\\Dev\\stepik\\'
-        print('''Обрати внимание на скачивание файла.
-                 Названия файлов могут повторяться.''')
+        print('Обрати внимание на скачивание файла. '
+              'Названия файлов могут повторяться.')
         zip_name = f'{input("Введите название файла без .zip: ")}.zip'
         if os.path.exists(zip_name):
-            os.chdir(file_destination)
+            os.chdir(file_destination + '')
             if os.path.exists(f'tests/{zip_name}'):
                 os.remove(os.path.join('tests', zip_name))
-            shutil.move(file_source + zip_name, file_destination + 'tests\\')
+            shutil.move(file_source + zip_name, file_destination + '\\tests\\')
         else:
             os.chdir(file_destination)
             if not os.path.exists(f'tests/{zip_name}'):
@@ -52,7 +57,7 @@ def main():
     zip_name = file_transfer_script()
 
     with ZipFile(f'tests/{zip_name}') as zip_file:
-        info: list[str] = zip_file.namelist()
+        info = zip_file.namelist()
         info = filter(lambda name: name.isdigit(), info)
         for name in info:
             with (zip_file.open(f'{name}', 'r') as input_file,
