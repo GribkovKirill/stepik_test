@@ -1,33 +1,39 @@
-from functools import total_ordering
-
-
-@total_ordering
-class Version:
-    def __init__(self, version: str):
-        version: list = version.split('.')
-        while len(version) < 3:
-            version.append('0')
-        self.version = '.'.join(version)
-        self.numbers = list(map(int, version))
+class Queue:
+    def __init__(self, *args):
+        self.args = list(args)
 
     def __str__(self) -> str:
-        return self.version
+        return ' -> '.join(map(str, self.args))
 
-    def __repr__(self) -> str:
-        return f'Version({repr(self.version)})'
+    def add(self, *args):
+        self.args += list(args)
+
+    def pop(self):
+        if self.args:
+            return self.args.pop(0)
+        else:
+            return None
 
     def __eq__(self, other):
-        if isinstance(other, Version):
-            return self.numbers == other.numbers
+        if isinstance(other, Queue):
+            return self.args == other.args
         return NotImplemented
 
-    def __lt__(self, other):
-        if isinstance(other, Version):
-            if self.numbers[0] < other.numbers[0]:
-                return self.numbers[0] < other.numbers[0]
-            elif self.numbers[0] == other.numbers[0]:
-                if self.numbers[1] < other.numbers[1]:
-                    return self.numbers[1] < other.numbers[1]
-                elif self.numbers[1] == other.numbers[1]:
-                    return self.numbers[2] < other.numbers[2]
+    def __add__(self, other):
+        if isinstance(other, Queue):
+            return Queue(*(self.args + other.args))
+        return NotImplemented
+
+    def __iadd__(self, other):
+        if isinstance(other, Queue):
+            self.args += other.args
+            return self
+        return NotImplemented
+
+    def __rshift__(self, other):
+        if isinstance(other, int):
+            if other < len(self.args):
+                return Queue(*self.args[other:])
+            else:
+                return Queue()
         return NotImplemented

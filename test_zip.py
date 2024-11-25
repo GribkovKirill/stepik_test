@@ -26,29 +26,41 @@ class StrStream:
 def file_transfer_script():
     '''Script function for transferring a file from
     the download folder.
-    To work on your system, change the path to the directories.'''
+    To work on your system,
+    change the path to the directories.'''
 
-    file_source = f'C:\\Users\\{os.getlogin()}\\Downloads\\'
-    file_destination = os.getcwd()
-    os.chdir(file_source)
-    print('Pay attention to the file download.. '
-          'File names may be repeated.')
-    zip_name = f'{input("Enter the name of the file without .zip: ")}.zip'
-    if os.path.exists(zip_name):
-        os.chdir(file_destination)
+    with open('zip_save.txt', 'a+', encoding='utf-8') as file:
+        '''A context manager that overwrites data in
+        zip_save.txt if necessary.'''
+        file.seek(0)
+        old_zip_name = file.readline()
+        print('The last one in the work was a zip archive with the name:',
+              f'{old_zip_name}.')
+        answer = input('Do you want to continue working with it? ')
+        if not answer and file.readable():
+            flag_new_zip_name = False
+        else:
+            flag_new_zip_name = True
+            new_zip_name = answer + '.zip'
+            file.truncate(0)
+            file.write(new_zip_name)
 
-        for filename in os.listdir(file_destination):
-            '''The cycle of deleting unnecessary archives.'''
-            if filename.endswith('.zip'):
-                file_path = os.path.join(file_destination, filename)
-                os.unlink(file_path)
-
-        shutil.move(file_source + zip_name, file_destination)
+    if flag_new_zip_name:
+        file_source = f'C:\\Users\\{os.getlogin()}\\Downloads\\'
+        file_destination = os.getcwd()
+        os.chdir(file_source)
+        if os.path.exists(new_zip_name):
+            os.chdir(file_destination)
+            file_path = os.path.join(file_destination, old_zip_name)
+            os.unlink(file_path)
+            shutil.move(file_source + new_zip_name, file_destination)
+        else:
+            os.chdir(file_destination)
+            if not os.path.exists(f'{new_zip_name}'):
+                raise FileNotFoundError('You have not downloaded the file.')
+        return new_zip_name
     else:
-        os.chdir(file_destination)
-        if not os.path.exists(f'{zip_name}'):
-            raise FileNotFoundError('You have not downloaded the file.')
-    return zip_name
+        return old_zip_name
 
 
 def main():
