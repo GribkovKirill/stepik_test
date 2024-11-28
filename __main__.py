@@ -1,4 +1,5 @@
 import shutil
+import platform
 import os
 import sys
 from zipfile import ZipFile
@@ -33,7 +34,6 @@ def file_transfer_script():
         '''A context manager that overwrites data in
         zip_save.txt if necessary.'''
         file.seek(0)
-<<<<<<< HEAD
         old_name = file.readline()
         if old_name:
             print(f'To continue working with file {old_name}, press Enter,')
@@ -50,52 +50,33 @@ def file_transfer_script():
             file.truncate(0)
             file.write(new_name)
 
-    if flag_new_name:
-        file_source = f'C:\\Users\\{os.getlogin()}\\Downloads\\'
-        file_destination = os.getcwd()
-        os.chdir(file_source)
-        if os.path.exists(new_name):
-            os.chdir(file_destination)
-            file_path = os.path.join(file_destination, old_name)
-            os.unlink(file_path)
-            shutil.move(file_source + new_name, file_destination)
+        file_destination = os.path.join(os.getcwd(), 'stepik')
+        if flag_new_name:
+            system_name = platform.system()
+            match system_name:
+                case 'Windows':
+                    file_source = f'C:\\Users\\{os.getlogin()}\\Downloads\\'
+                case 'Darwin':
+                    pass
+                case 'Linux':
+                    pass
+            os.chdir(file_source)
+            if os.path.exists(new_name):
+                os.chdir(file_destination)
+                if os.path.exists(old_name):
+                    file_path = os.path.join(file_destination, old_name)
+                    os.unlink(file_path)
+                shutil.move(file_source + new_name, file_destination)
+            else:
+                os.chdir(file_destination)
+                if not os.path.exists(f'{new_name}'):
+                    raise FileNotFoundError(
+                        'You have not downloaded the file.'
+                        )
+            return new_name
         else:
             os.chdir(file_destination)
-            if not os.path.exists(f'{new_name}'):
-                raise FileNotFoundError('You have not downloaded the file.')
-        return new_name
-    else:
-        return old_name
-=======
-        old_zip_name = file.readline()
-        print('The last one in the work was a zip archive with the name:',
-              f'{old_zip_name}.')
-        answer = input('Do you want to continue working with it? ')
-        if not answer and file.readable():
-            flag_new_zip_name = False
-        else:
-            flag_new_zip_name = True
-            new_zip_name = answer + '.zip'
-            file.truncate(0)
-            file.write(new_zip_name)
-
-    if flag_new_zip_name:
-        file_source = f'C:\\Users\\{os.getlogin()}\\Downloads\\'
-        file_destination = os.getcwd()
-        os.chdir(file_source)
-        if os.path.exists(new_zip_name):
-            os.chdir(file_destination)
-            file_path = os.path.join(file_destination, old_zip_name)
-            os.unlink(file_path)
-            shutil.move(file_source + new_zip_name, file_destination)
-        else:
-            os.chdir(file_destination)
-            if not os.path.exists(f'{new_zip_name}'):
-                raise FileNotFoundError('You have not downloaded the file.')
-        return new_zip_name
-    else:
-        return old_zip_name
->>>>>>> 9f734edaddd3e7b962c36d51558775fb954bc0fc
+            return old_name
 
 
 def main():
@@ -123,4 +104,5 @@ def main():
             print('SOLVED!!!!')
 
 
-main()
+if __name__ == '__main__':
+    main()
