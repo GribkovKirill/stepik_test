@@ -1,14 +1,15 @@
-from typing import Any
+class limited_hash:
+    def __init__(self, left: int, right: int, hash_function=hash):
+        self.left = left
+        self.right = right
+        self.hash_function = hash_function
 
+    def __call__(self, obj):
+        hashed_obj: int = self.hash_function(obj)
 
-class AttrsNumberObject:
-    def __init__(self, **kwargs):
-        for name, value in kwargs.items():
-            self.__setattr__(name, value)
-
-    def __getattr__(self, name):
-        return len(self.__dict__) + 1
-
-music_group = AttrsNumberObject(name='Silent Poets', genre='acid jazz')
-
-print(music_group.attrs_num)
+        while hashed_obj not in range(self.left, self.right + 1):
+            if hashed_obj > self.right:
+                hashed_obj = self.left + (hashed_obj - self.right - 1)
+            elif hashed_obj < self.left:
+                hashed_obj = self.right - (self.left - hashed_obj - 1)
+        return hashed_obj
