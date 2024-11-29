@@ -1,9 +1,8 @@
-import shutil
 import platform
 import os
 import sys
 from zipfile import ZipFile
-from easy import *  # Подскажите как избавиться от Flake(F403), Flake(F401)
+from .easy import *  # Подскажите как избавиться от Flake(F403), Flake(F401)
 
 
 class StrStream:
@@ -50,32 +49,30 @@ def file_transfer_script():
             file.truncate(0)
             file.write(new_name)
 
-        file_destination = os.path.join(os.getcwd(), 'stepik')
+        match platform.system():
+            case 'Windows':
+                file_source = f'C:\\Users\\{os.getlogin()}\\Downloads\\'
+            case 'Darwin':
+                pass
+            case 'Linux':
+                pass
+
+        os.chdir(file_source)
         if flag_new_name:
-            system_name = platform.system()
-            match system_name:
-                case 'Windows':
-                    file_source = f'C:\\Users\\{os.getlogin()}\\Downloads\\'
-                case 'Darwin':
-                    pass
-                case 'Linux':
-                    pass
-            os.chdir(file_source)
-            if os.path.exists(new_name):
-                os.chdir(file_destination)
-                if os.path.exists(old_name):
-                    file_path = os.path.join(file_destination, old_name)
-                    os.unlink(file_path)
-                shutil.move(file_source + new_name, file_destination)
+            if (
+                os.path.exists(new_name) and
+                os.path.exists(old_name) and
+                new_name != old_name
+            ):
+                file_path = os.path.join(file_source, old_name)
+                os.unlink(file_path)
             else:
-                os.chdir(file_destination)
-                if not os.path.exists(f'{new_name}'):
+                if not os.path.exists(new_name):
                     raise FileNotFoundError(
                         'You have not downloaded the file.'
                         )
             return new_name
         else:
-            os.chdir(file_destination)
             return old_name
 
 
@@ -84,20 +81,20 @@ def main():
 
     zip_name = file_transfer_script()
 
-    with ZipFile(f'{zip_name}') as zip_file:
+    with ZipFile(zip_name) as zip_file:
         info = zip_file.namelist()
         info = filter(lambda name: name.isdigit(), info)
         for name in info:
-            with (zip_file.open(f'{name}', 'r') as input_file,
-                  zip_file.open(f'{name}.clue', 'r') as new_name_file):
+            with (zip_file.open(name, 'r') as input_file,
+                  zip_file.open(f'{name}.clue', 'r') as answer_file):
                 with StrStream() as x:
                     exec(input_file.read().decode('utf-8'))
                 input_data = x.data
-                new_name_data = new_name_file.read().decode('utf-8') + '\n'
-                if input_data != new_name_data:
-                    print(f'wrong new_name in test №{name}')
-                    print(f'your new_name:\n{input_data}')
-                    print(f'correct new_name:\n{new_name_data}')
+                answer_data = answer_file.read().decode('utf-8') + '\n'
+                if input_data != answer_data:
+                    print(f'wrong answer in test №{name}')
+                    print(f'your answer:\n{input_data}')
+                    print(f'correct answer:\n{answer_data}')
                     break
                 print(f'№{name} - OK!')
         else:
