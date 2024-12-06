@@ -70,12 +70,14 @@ def main():
         info = zip_file.namelist()
         info = filter(lambda name: name.isdigit(), info)
         for name in info:
-            with (zip_file.open(name, 'r') as input_file,
-                  zip_file.open(f'{name}.clue', 'r') as answer_file):
+            with (zip_file.open(name, 'r', encoding='utf-8') as input_file,
+                  zip_file.open(
+                      f'{name}.clue', 'r', encoding='utf-8'
+                  ) as answer_file):
                 with streams.CodeStream() as x:
-                    exec(input_file.read().decode('utf-8'))
+                    exec(input_file.read())
                 input_data = x.data
-                answer_data = answer_file.read().decode('utf-8') + '\n'
+                answer_data = answer_file.read() + '\n'
                 if input_data != answer_data:
                     print(f'wrong answer in test №{name}')
                     print(f'your answer:\n{input_data}')
