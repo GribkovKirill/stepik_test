@@ -18,10 +18,12 @@ class Saver:
         self.old_name = self.zip_name
         if self.old_name:
             print(f'To continue working with file {self.old_name}, '
-                    'press Enter, or,')
-            self.new_name = input("specify the name of the file without .zip: ")
+                  'press Enter, or,')
+            self.new_name = \
+                input("specify the name of the file without .zip: ")
         else:
-            self.new_name = input("Specify the name of the file without .zip: ")
+            self.new_name = \
+                input("Specify the name of the file without .zip: ")
         if not self.zip_name and not self.new_name:
             raise FileNotFoundError('The file is not specified.')
         elif self.zip_name and not self.new_name:
