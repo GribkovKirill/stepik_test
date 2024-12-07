@@ -1,32 +1,31 @@
+from sys import argv
 from zipfile import ZipFile
-from .zip_tests import zip_saver
 from .zip_tests import streams
-from .zip_tests import zip_replacer
+from .zip_tests import zip_replacer as zr
+
+
+with open(
+    f'{argv[0].split(chr(92))[-2]}/easy.py', 'r', encoding='utf-8'
+) as file:
+    exec(file.read())
+
+
+def prog(zf, file_name: str) -> None:
+    with streams.TestStream(
+            zf.open(file_name, 'r'),
+            zf.open(f'{file_name}.clue', 'r'), file_name
+    ) as ts:
+        with streams.CodeStream() as cs:
+            exec(ts.input_code)
+        ts.compare(cs.data)
 
 
 def main():
     '''The body of the program performing the testing.'''
-    with open(
-            f'{zip_saver.Saver.pack_name}/easy.py', 'r', encoding='utf-8'
-    ) as file:
-        exec(file.read())
-    zip_name = zip_replacer.get_name()
-    with ZipFile(zip_name) as zip_file:
-        info = zip_file.namelist()
-        info = filter(lambda name: name.isdigit(), info)
-        for name in info:
-            with (zip_file.open(name, 'r') as input_file,
-                  zip_file.open(f'{name}.clue', 'r') as answer_file):
-                with streams.CodeStream() as x:
-                    exec(input_file.read().decode('utf-8'))
-                input_data = x.data
-                answer_data = answer_file.read().decode('utf-8') + '\n'
-                if input_data != answer_data:
-                    print(f'wrong answer in test №{name}')
-                    print(f'your answer:\n{input_data}')
-                    print(f'correct answer:\n{answer_data}')
-                    break
-                print(f'№{name} - OK!')
+    zip_file = zr.get_paths()
+    with (ZipFile(zip_file) as zf):
+        for name in filter(lambda name: name.isdigit(), zf.namelist()):
+            prog(zf, name)
         else:
             print('SOLVED!!!!')
 

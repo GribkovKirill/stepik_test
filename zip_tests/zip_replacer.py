@@ -1,30 +1,30 @@
 import os
-from . import zip_saver
+from . import test_saver
 
 
-def get_name() -> str:
+def get_paths() -> tuple[str]:
     '''...'''
 
-    with zip_saver.Saver() as save:
-        old_name = save.old_name
+    with test_saver.Saver() as save:
+        name = save.old_name
         new_name = save.zip_name
         flag_new_name = save.flag
         file_source = save.file_source
+        dir_path = save.dir_path
 
     os.chdir(file_source)
     if flag_new_name:
         if (
             os.path.exists(new_name) and
-            os.path.exists(old_name) and
-            new_name != old_name
+            os.path.exists(name) and
+            new_name != name
         ):
-            file_path = os.path.join(file_source, old_name)
-            os.unlink(file_path)
+            os.unlink(os.path.join(file_source, name))
         else:
             if not os.path.exists(new_name):
                 raise FileNotFoundError(
                     'You have not downloaded the file.'
                     )
-        return new_name
-    else:
-        return old_name
+        name = new_name
+    os.chdir(dir_path)
+    return os.path.join(file_source, name)

@@ -1,4 +1,3 @@
-'PACKNAME', (0, 21)
-'FILE_SOURCE', (512, 40)
-'zip_name', (1024, 21)
-'file_source', (1536, 40)
+'zip_name', (0, 21)
+'file_source', (512, 39)
+'dir_path', (1024, 21)
